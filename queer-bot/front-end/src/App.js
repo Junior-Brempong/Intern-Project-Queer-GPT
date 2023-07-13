@@ -1,9 +1,10 @@
 import "./App.css";
 import "normalize.css";
 import { SipsTea } from "./SipsTea";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Popup } from "./Popup";
 import React from "react";
+import { ChatMessage } from "./ChatMessage";
 
 function App() {
   const [input, setInput] = useState("");
@@ -16,13 +17,13 @@ function App() {
   ]);
 
   function clearChat() {
-    setChatLog([]);
-  }
-
-  function handleClick(e) {
-    if (e) {
-      alert("TEST");
-    }
+    setChatLog([
+      {
+        user: "gpt",
+        message:
+          "Lets Kiki! Type something into the chat and Mama will try her best to help you out!",
+      },
+    ]);
   }
 
   async function handleSubmit(e) {
@@ -44,12 +45,40 @@ function App() {
 
     const data = await response.json();
     setChatLog([...chatLogNew, { user: "gpt", message: `${data.message}` }]);
-    console.log(data.message);
   }
+
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+
+  useEffect(() => {
+    const chatLogElement = document.querySelector('.chat-log');
+    
+    const handleScroll = () => {
+      const scrollTop = chatLogElement.scrollTop;
+      const scrollHeight = chatLogElement.scrollHeight;
+      const clientHeight = chatLogElement.clientHeight;
+      const isScrolledToBottom = scrollTop + clientHeight >= scrollHeight;
+      
+      setShowScrollButton(!isScrolledToBottom);
+    };
+    
+    chatLogElement.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      chatLogElement.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+  
+  const scrollToBottom = () => {
+    const chatLogElement = document.querySelector('.chat-log');
+    chatLogElement.scrollTo({ top: chatLogElement.scrollHeight, behavior: 'smooth' });
+  };
+  
+
 
   return (
     <div className="App">
-      <Popup handleClick={handleClick} />
+      <Popup />
       <SipsTea clearChat={clearChat} />
       <section className="queerBot">
         <div className="chat-log">
@@ -57,6 +86,11 @@ function App() {
             <ChatMessage key={index} message={message} />
           ))}
         </div>
+            {showScrollButton && (
+              <button className="scroll-button" onClick={scrollToBottom}>
+                Scroll to Bottom
+              </button>
+            )}
         <div className="chat-input-holder">
           <form onSubmit={handleSubmit}>
             <input
@@ -73,29 +107,5 @@ function App() {
   );
 }
 
-const ChatMessage = ({ message }) => {
-  return (
-    <div className={`chat-message ${message.user === "gpt" && "chatgpt"}`}>
-      <div className="chat-message-center">
-        <div className={`avatar ${message.user === "gpt" && "chatgpt"}`}>
-          {message.user === "gpt" ? (
-            <img
-              src="https://thewildcattribune.com/wp-content/uploads/2023/05/52890928681_a467a529c4_o-e1685030922246-900x860.jpg"
-              alt="Icon"
-              className="icon"
-            ></img>
-          ) : (
-            <img
-              src="https://img.freepik.com/premium-vector/cute-kawaii-cats-kittens-pastel-design-funny-cartoon-print-sticker-design_685067-2220.jpg"
-              alt="Icon"
-              className="icon"
-            ></img>
-          )}
-        </div>
-        <div className="message">{message.message}</div>
-      </div>
-    </div>
-  );
-};
 
 export default App;

@@ -1,5 +1,3 @@
-const { apiKey } = require("./Api");
-
 const { Configuration, OpenAIApi } = require("openai");
 const express = require("express");
 // add body parser and cors to express
@@ -8,7 +6,7 @@ const cors = require("cors");
 
 const configuration = new Configuration({
   organization: "org-CgzrkcC8vNJSE2EFg6DkbdMQ",
-  apiKey: apiKey,
+  apiKey: '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',
 });
 const openai = new OpenAIApi(configuration);
 
